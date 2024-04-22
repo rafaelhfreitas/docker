@@ -1,38 +1,24 @@
-FROM golang:1.12-alpine AS build_base
+# Iniciando uma imagem base golang:alpine
+FROM golang:alpine AS builder
 
-RUN apk add --no-cache git
+# criando diretório de trabalho
+WORKDIR /app
 
-WORKDIR /tmp/go-sample-app
-
-COPY go.mod .
-COPY go.sum .
-
-RUN go mod download
-
+# Copiando o app
 COPY . .
 
-RUN go build -o ./out/go-sample-app .
+# Compilando o binário removendo informações de debug
+RUN go build -ldflags '-s -w' main.go
 
-FROM alpine:3.9 
-RUN apk add ca-certificates
+# Iniciando com scratch
+FROM scratch
 
-COPY --from=build_base /tmp/go-sample-app/out/go-sample-app /app/go-sample-app
+# diretório de trabalho
+WORKDIR /
 
-EXPOSE 8080
+# copiando o binário
+COPY --from=builder /app / 
 
-CMD ["/app/go-sample-app"]
+# executando 
+CMD ["./main"]
 
-
-
-# FROM golang:1.20
-
-# WORKDIR /app
-
-# RUN go mod init containerized-go-app
-
-# COPY go.mod .
-# COPY main.go .
-
-# RUN go build -o bin .
-
-# ENTRYPOINT [ "/app/bin" ]
