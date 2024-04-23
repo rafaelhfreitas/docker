@@ -7,6 +7,7 @@ const config = {
     password: 'root',
     database: 'nodedb'
 };
+
 const mysql = require('mysql')
 const connection = mysql.createConnection(config)
 
@@ -15,11 +16,11 @@ const sql = `INSERT INTO people(name) VALUES ('Rafael Freitas')`
 connection.query(sql)
 connection.end()
 
-
 app.get('/', (req, res) => { 
     res.send('<h1> Full Cycle  Rafael !!!! </h1>')
 })
 
 app.listen(port , () => {
-    console.log('rodando na porta ' + port)
+    console.log(`rodando na porta ${port}`)
 })
+
