@@ -273,3 +273,75 @@ server {
 
 ``
 
+
+
+Tentei rodar o 
+
+``
+docker exec -it nginx bash
+``
+
+para tentar rodar o ping para ver se reconhecia pelo no app:3000
+mas a imagem não tem ping
+vi que a nginx:latest é baseada em debian
+tentei instalar manualmente o ping, mas fala que o pacote não  existe
+
+
+validando o docker-compose logs:
+
+``
+ rafael-ubuntu@rafael-ubuntu-Inspiron-5548  ~/projetos/docker   main ±  docker-compose logs
+Attaching to nginx, app, db
+app      | 2024/04/23 02:59:53 Waiting for: tcp://db:3306
+app      | 2024/04/23 02:59:53 Problem with dial: dial tcp 192.168.64.2:3306: connect: connection refused. Sleeping 1s
+app      | 2024/04/23 02:59:54 Connected to tcp://db:3306
+app      | Welcome to Node.js v15.14.0.
+app      | Type ".help" for more information.
+nginx    | 2024/04/23 02:59:58 [error] 7#7: *1 connect() failed (111: Connection refused) while connecting to upstream, client: 192.168.64.1, server: localhost, request: "GET / HTTP/1.1", upstream: "http://192.168.64.3:3000/", host: "localhost:8080"
+nginx    | 192.168.64.1 - - [23/Apr/2024:02:59:58 +0000] "GET / HTTP/1.1" 502 575 "-" "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/123.0.0.0 Safari/537.36" "-"
+nginx    | 2024/04/23 02:59:58 [error] 7#7: *1 connect() failed (111: Connection refused) while connecting to upstream, client: 192.168.64.1, server: localhost, request: "GET /favicon.ico HTTP/1.1", upstream: "http://192.168.64.3:3000/favicon.ico", host: "localhost:8080", referrer: "http://localhost:8080/"
+nginx    | 192.168.64.1 - - [23/Apr/2024:02:59:58 +0000] "GET /favicon.ico HTTP/1.1" 502 575 "http://localhost:8080/" "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/123.0.0.0 Safari/537.36" "-"
+db       | 2024-04-23 02:59:52+00:00 [Note] [Entrypoint]: Entrypoint script for MySQL Server 5.7.44-1.el7 started.
+db       | 2024-04-23 02:59:53+00:00 [Note] [Entrypoint]: Switching to dedicated user 'mysql'
+db       | 2024-04-23 02:59:53+00:00 [Note] [Entrypoint]: Entrypoint script for MySQL Server 5.7.44-1.el7 started.
+db       | '/var/lib/mysql/mysql.sock' -> '/var/run/mysqld/mysqld.sock'
+db       | 2024-04-23T02:59:53.830942Z 0 [Warning] TIMESTAMP with implicit DEFAULT value is deprecated. Please use --explicit_defaults_for_timestamp server option (see documentation for more details).
+db       | 2024-04-23T02:59:53.832388Z 0 [Note] mysqld (mysqld 5.7.44) starting as process 1 ...
+db       | 2024-04-23T02:59:53.835486Z 0 [Note] InnoDB: PUNCH HOLE support available
+db       | 2024-04-23T02:59:53.835509Z 0 [Note] InnoDB: Mutexes and rw_locks use GCC atomic builtins
+db       | 2024-04-23T02:59:53.835518Z 0 [Note] InnoDB: Uses event mutexes
+db       | 2024-04-23T02:59:53.835524Z 0 [Note] InnoDB: GCC builtin __atomic_thread_fence() is used for memory barrier
+db       | 2024-04-23T02:59:53.835531Z 0 [Note] InnoDB: Compressed tables use zlib 1.2.13
+db       | 2024-04-23T02:59:53.835785Z 0 [Note] InnoDB: Number of pools: 1
+db       | 2024-04-23T02:59:53.835907Z 0 [Note] InnoDB: Using CPU crc32 instructions
+db       | 2024-04-23T02:59:53.837660Z 0 [Note] InnoDB: Initializing buffer pool, total size = 128M, instances = 1, chunk size = 128M
+db       | 2024-04-23T02:59:53.845670Z 0 [Note] InnoDB: Completed initialization of buffer pool
+db       | 2024-04-23T02:59:53.848101Z 0 [Note] InnoDB: If the mysqld execution user is authorized, page cleaner thread priority can be changed. See the man page of setpriority().
+db       | 2024-04-23T02:59:53.860156Z 0 [Note] InnoDB: Highest supported file format is Barracuda.
+db       | 2024-04-23T02:59:53.869675Z 0 [Note] InnoDB: Creating shared tablespace for temporary tables
+db       | 2024-04-23T02:59:53.869780Z 0 [Note] InnoDB: Setting file './ibtmp1' size to 12 MB. Physically writing the file full; Please wait ...
+db       | 2024-04-23T02:59:53.905387Z 0 [Note] InnoDB: File './ibtmp1' size is now 12 MB.
+db       | 2024-04-23T02:59:53.906736Z 0 [Note] InnoDB: 96 redo rollback segment(s) found. 96 redo rollback segment(s) are active.
+db       | 2024-04-23T02:59:53.906760Z 0 [Note] InnoDB: 32 non-redo rollback segment(s) are active.
+db       | 2024-04-23T02:59:53.907345Z 0 [Note] InnoDB: 5.7.44 started; log sequence number 12226153
+db       | 2024-04-23T02:59:53.907659Z 0 [Note] InnoDB: Loading buffer pool(s) from /var/lib/mysql/ib_buffer_pool
+db       | 2024-04-23T02:59:53.907813Z 0 [Note] Plugin 'FEDERATED' is disabled.
+db       | 2024-04-23T02:59:53.910026Z 0 [Note] InnoDB: Buffer pool(s) load completed at 240423  2:59:53
+db       | 2024-04-23T02:59:53.915395Z 0 [Note] Found ca.pem, server-cert.pem and server-key.pem in data directory. Trying to enable SSL support using them.
+db       | 2024-04-23T02:59:53.915423Z 0 [Note] Skipping generation of SSL certificates as certificate files are present in data directory.
+db       | 2024-04-23T02:59:53.915429Z 0 [Warning] A deprecated TLS version TLSv1 is enabled. Please use TLSv1.2 or higher.
+db       | 2024-04-23T02:59:53.915436Z 0 [Warning] A deprecated TLS version TLSv1.1 is enabled. Please use TLSv1.2 or higher.
+db       | 2024-04-23T02:59:53.916285Z 0 [Warning] CA certificate ca.pem is self signed.
+db       | 2024-04-23T02:59:53.916347Z 0 [Note] Skipping generation of RSA key pair as key files are present in data directory.
+db       | 2024-04-23T02:59:53.916816Z 0 [Note] Server hostname (bind-address): '*'; port: 3306
+db       | 2024-04-23T02:59:53.916860Z 0 [Note] IPv6 is available.
+db       | 2024-04-23T02:59:53.916879Z 0 [Note]   - '::' resolves to '::';
+db       | 2024-04-23T02:59:53.916903Z 0 [Note] Server socket created on IP: '::'.
+db       | 2024-04-23T02:59:53.920776Z 0 [Warning] Insecure configuration for --pid-file: Location '/var/run/mysqld' in the path is accessible to all OS users. Consider choosing a different directory.
+db       | 2024-04-23T02:59:53.933770Z 0 [Note] Event Scheduler: Loaded 0 events
+db       | 2024-04-23T02:59:53.934044Z 0 [Note] mysqld: ready for connections.
+db       | Version: '5.7.44'  socket: '/var/run/mysqld/mysqld.sock'  port: 3306  MySQL Community Server (GPL)
+db       | 2024-04-23T03:00:04.500579Z 2 [Note] Got timeout reading communication packets
+
+
+``
