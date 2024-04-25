@@ -11,87 +11,52 @@ const config = {
 const mysql = require('mysql')
 const connection = mysql.createConnection(config)
 
-
 const sql = `INSERT INTO people(name) VALUES ('Rafael Freitas')`
 connection.query(sql)
 connection.end()
 
 
-// const selectQuery = `INSERT INTO people(name) VALUES ('Rafael Freitas')`;
-// result = connection.query(selectQuery);
-// connection.end();
-
-// const pool = mysql.createPool(config);
+const pool = mysql.createPool(config);
+const selectQuery = `SELECT * FROM people`;
 
 
-// const selectQuery = `SELECT * FROM people`;
-// connection.query(selectQuery, (err, selectResult) => {
-//     if (err) {
-//         console.error('Error performing SELECT query:', err);
-//         return;
-//     }
-//     console.log('Selected all records from people table:', selectResult);
+// Middleware to execute the SQL query
+app.use((req, res, next) => {
+    pool.getConnection((err, connection) => {
+        if (err) {
+            console.error('Error connecting to database:', err);
+            return res.status(500).send('Internal Server Error');
+        }
 
-//     // Define route handler to send the result as response
-//     // app.get('/', (req, res) => {
-//     //     console.log('result', selectResult)
-//     //     res.send(`<h1> Full Cycle Rafael !!!! </h1> <pre>${JSON.stringify(selectResult)}</pre>`);
-//     // });
-// });
+        // Execute the SQL query
+        connection.query(insertQuery, (err) => {
+            if (err) {
+                console.error('Error executing insert query:', err);
+                connection.release(); // Release the connection back to the pool
+                return res.status(500).send('Internal Server Error');
+            }
 
+            connection.query(selectQuery, (err, results) => {
+                connection.release(); // Release the connection back to the pool
 
-// app.get('/', (req, res) => {
+                if (err) {
+                    console.error('Error executing select query:', err);
+                    return res.status(500).send('Internal Server Error');
+                }
 
-
-//     debugger
-//     pool.query('SELECT * FROM people', (error, results) => {
-
-//         debugger
-//         if (error) {
-//             // If there's an error, send an error response
-//             return res.status(500).json({ error: 'Error retrieving people from database' });
-//         }
-
-//         // If the query is successful, send the results as JSON
-//         //res.json(results);
-//         res.send(`<h1> Full Cycle  Rafael !!!! </h1> <pre>${JSON.stringify(results)}</pre`)
-//     });
-
-// })
-
-// app.get('/', (req, res) => { 
-
-//     const selectQuery = `SELECT * FROM people`;
-
-//     connection.query(selectQuery, (err, selectResult) => {
-//         if (err) {
-//             console.error('Error performing SELECT query:', err);
-//             return;
-//         }
-//         console.log('Selected all records from people table:', selectResult);
-//     });
-    
-
-//     res.send(`<h1> Full Cycle  Rafael !!!! </h1> <pre>${JSON.stringify(selectResult)}</pre`)
-// })
+                res.locals.people = results; // Store the query results in res.locals
+                next(); // Proceed to the next middleware
+            });
+        });
+    });
+});
 
 
-// const selectQuery = `SELECT * FROM people`;
-// connection.query(selectQuery, (err, selectResult) => {
-//     if (err) {
-//         console.error('Error performing SELECT query:', err);
-//         return;
-//     }
-//     console.log('Selected all records from people table:', selectResult);
-
-//     // Define route handler to send response with selectQuery result
-//     app.get('/', (req, res) => {
-//         res.send(`<h1> Full Cycle Rafael !!!! </h1> <pre>${JSON.stringify(selectResult)}</pre>`);
-//     });
-// });
 
 
 app.get('/', (req, res) => {
+    const people = res.locals.people || []; // Retrieve query results from res.locals
+    const names = people.map(person => `<li>${person.name}</li>`).join('');
     res.send(`<h1> Full Cycle Rafael !!!! </h1> `);
 });
 
@@ -99,3 +64,34 @@ app.listen(port , () => {
     console.log(`rodando na porta ${port}`)
 })
 
+
+
+const express = require("express");
+const mysql = require("mysql");
+const app = express();
+
+const connection = mysql.createPool({
+  connectionLimit: 10,
+  host: process.env.MYSQL_HOST || "localhost",
+  user: process.env.MYSQL_USER || "root",
+  password: process.env.MYSQL_PASSWORD || "password",
+  database: process.env.MYSQL_DATABASE || "test",
+});
+
+app.get("/", (req, res) => {
+  connection.query("SELECT * FROM Student", (err, rows) => {
+    if (err) {
+      res.json({
+        success: false,
+        err,
+      });
+    } else {
+      res.json({
+        success: true,
+        rows,
+      });
+    }
+  });
+});
+
+app.listen(5000, () => console.log("listining on port 5000"));

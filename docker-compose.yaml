@@ -32,25 +32,20 @@ services:
     depends_on:
       - db
 
-
   nginx: 
     restart: always
     build:
       context: nginx
     container_name: nginx
-    entrypoint: dockerize -wait tcp://app:3000 -timeout 60s
+    entrypoint: sh -c "sleep 10 && dockerize -wait tcp://app:3000 -timeout 60s"
     networks:
       - node-network
     ports:
       - "8080:80"
     tty: true
     depends_on:
+      - db
       - app
-
-
-
-
-
 
     
 networks:
